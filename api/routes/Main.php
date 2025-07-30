@@ -2,8 +2,6 @@
 
 require_once __DIR__ . '/../http/Route.php';
 
-Route::post('/jar', 'UserController::register');
-
 Route::post('/users/register', 'UserController::register');
 Route::post('/users/login', 'UserController::login');
 Route::get('/users/{id}/search', 'UserController::search');

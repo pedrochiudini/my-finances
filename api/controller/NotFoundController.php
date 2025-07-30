@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../http/Response.php';
+require_once HOME . 'api/http/Response.php';
+require_once HOME . 'api/helper/QueryBuilder.php';
 
 class NotFoundController
 {

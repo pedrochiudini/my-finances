@@ -1,14 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../controller/NotFoundController.php';
+require_once HOME . 'api/controller/NotFoundController.php';
 
 class ControllerFactory
 {
-    public static function create(string $type): mixed
+    public static function create(string $type): object
     {
-        return match ($type) {
-            NotFoundController::class => new NotFoundController(),
-            default                   => throw new \Exception("Controller desconhecida.")
-        };
+        switch ($type) {
+            case 'NotFoundController':
+                return new NotFoundController();
+
+            default:
+                throw new \Exception("Controller desconhecido", 404);
+        }
     }
 }

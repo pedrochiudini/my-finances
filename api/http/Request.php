@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../Route.php';
+require_once HOME . 'api/http/Route.php';
 
 class Request
 {
@@ -32,11 +32,11 @@ class Request
     {
         $authorization = getallheaders();
 
-        if (!isset($authorization['Authorization'])) throw new \Exception("Autorização não encontrada.");
+        if (!isset($authorization['Authorization'])) throw new \Exception("Autorização não encontrada.", 401);
 
         $authorization_partials = explode(' ', $authorization['Authorization']);
 
-        if (count($authorization_partials) != 2) throw new \Exception("Autorização inválida.");
+        if (count($authorization_partials) != 2) throw new \Exception("Autorização inválida.", 401);
 
         return ['authorization' => $authorization_partials[1] ?? ''];
     }
