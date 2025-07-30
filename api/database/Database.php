@@ -1,10 +1,7 @@
 <?php
 
-namespace app\infrastructure\database;
-
-use app\application\http\Response;
-use PDO;
-use PDOException;
+require_once __DIR__ . '/../config/DatabaseConfig.php'; 
+require_once __DIR__ . '/../http/Response.php';
 
 class Database
 {

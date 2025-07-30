@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../Route.php';
+
 class Request
 {
     public static function getMethod(): string

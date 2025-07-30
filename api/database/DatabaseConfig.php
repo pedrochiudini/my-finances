@@ -1,9 +1,5 @@
 <?php
 
-namespace app\infrastructure\database;
-
-use PDO;
-
 class DatabaseConfig
 {
     private static function host(): string
