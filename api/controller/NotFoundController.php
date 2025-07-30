@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../http/Response.php';
+
 class NotFoundController
 {
     public function index(Response $response): void
