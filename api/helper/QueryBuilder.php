@@ -175,13 +175,12 @@ class QueryBuilder
             throw new \Exception("Tabela não especificada.", 400);
         }
 
-        $sql = $this->getSQL();
+        $sql    = $this->getSQL();
+        $params = $this->params;
 
-        if (empty($this->params)) {
+        if (empty($params)) {
             return ['sql' => $sql];
         }
-
-        $params = $this->params;
 
         return [
             'sql'    => $sql,

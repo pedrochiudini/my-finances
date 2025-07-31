@@ -9,4 +9,13 @@ require_once HOME . 'api/config/Config.php';
 require_once HOME . 'api/core/Core.php';
 require_once HOME . 'api/http/Route.php';
 
-Core::dispatch(Route::routes());
+require_once HOME . 'api/helper/Helpers.php';
+
+try {
+    Core::dispatch(Route::routes());
+} catch (\Throwable $th) {
+    Response::json([
+        'success' => false,
+        'message' => $th->getMessage(),
+    ], 400);
+}

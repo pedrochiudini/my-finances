@@ -1,9 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../http/Route.php';
-require_once __DIR__ . '/../http/Response.php';
-require_once __DIR__ . '/../http/Request.php';
-require_once __DIR__ . '/../factory/ControllerFactory.php';
+require_once HOME . 'api/http/Route.php';
+require_once HOME . 'api/http/Response.php';
+require_once HOME . 'api/http/Request.php';
+require_once HOME . 'api/factory/ControllerFactory.php';
+require_once HOME . 'api/helper/Functions.php';
 
 class Core
 {
@@ -56,12 +57,12 @@ class Core
 
             $controller_instance = ControllerFactory::create($controller);
 
-            $controller_instance->$action(new Request, new Response, $matches);
-        } catch (Exception $e) {
-            Response::json([
-                'success' => false,
-                'message' => 'Falha ao encontrar rota.',
-            ], 400);
+            $result = $controller_instance->$action(new Request, new Response, $matches);
+
+            Response::json($result, 200);
+        } catch (\Throwable $th) {
+            Functions::isCustomThrow($th);
+            throw new \Exception('Erro ao processar rota', 7400, $th);
         }
     }
 

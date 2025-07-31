@@ -1,6 +1,7 @@
 <?php
 
 require_once HOME . 'api/http/Route.php';
+require_once HOME . 'api/interfaces/IRequestDTO.php';
 
 class Request
 {
@@ -9,23 +10,33 @@ class Request
         return $_SERVER["REQUEST_METHOD"];
     }
 
-    public static function body(): array
+    /**
+     * Lê o corpo da requisição e instancia o DTO informado
+     *
+     * @param class-string<IRequestDTO> $dtoClass
+     * @return IRequestDTO
+     */
+    public static function body(string $dtoClass): IRequestDTO
     {
         if (!in_array(self::getMethod(), [
             Route::METHOD_POST,
             Route::METHOD_PUT,
             Route::METHOD_DELETE,
-        ])) return [];
+        ])) {
+            throw new \Exception("Método inválido para corpo de requisição", 400);
+        }
 
         $json = file_get_contents('php://input');
 
-        if (!$json) return [];
+        if (!$json) throw new \Exception("Corpo da requisição vazio", 400);
 
         $data = json_decode($json, true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) return [];
+        if (json_last_error() !== JSON_ERROR_NONE) throw new \Exception("JSON inválido: " . json_last_error_msg(), 400);
 
-        return $data;
+        if (!class_exists($dtoClass)) throw new \Exception("Classe DTO {$dtoClass} não existe", 500);
+
+        return $dtoClass::fromArray($data);
     }
 
     public static function authorization(): array
