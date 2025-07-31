@@ -16,23 +16,34 @@ class UserController
         Route::post("/api/users/create", "$path::createUser");
     }
 
-    public function createUser(Request $request, Response $response)
+    private RepositoryInterface $repository;
+
+    public function __construct(RepositoryInterface $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    public function createUser(Request $request)
     {
         try {
-            $dto = $request::body(UserRequestDTO::class);
-
+            $dto  = $request::body(UserRequestDTO::class);
             $user = $dto->transformToObject();
 
             $user->validateData();
 
-            return UserResponseDTO::transformToDTO($user);
+            if ($this->repository->save($user)) {
+                return [
+                    'success' => true,
+                    'message' => 'Usuário criado com sucesso.',
+                ];
+            }
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
             throw new \Exception('Erro ao criar usuário', 7400, $th);
         }
     }
 
-    public function getUsers(Request $request, Response $response)
+    public function getUsers()
     {
         return [
             UserResponseDTO::transformToDTO(new User(1, 'John Doe', 'john@example.com', 'password123')),

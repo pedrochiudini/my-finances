@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../config/DatabaseConfig.php'; 
-require_once __DIR__ . '/../http/Response.php';
+require_once HOME . 'api/database/DatabaseConfig.php';
+require_once HOME . 'api/http/Response.php';
 
 class Database
 {
@@ -17,13 +17,8 @@ class Database
                     DatabaseConfig::password(),
                     DatabaseConfig::options()
                 );
-            } catch (PDOException $e) {
-                Response::json([
-                    'error'   => true,
-                    'success' => false,
-                    'message' => 'Erro ao conectar ao banco de dados.',
-                    'details' => $e->getMessage()
-                ], 500);
+            } catch (\PDOException $e) {
+                throw new \Exception("Erro ao conectar ao banco de dados: ", 500, $e);
             }
         }
 

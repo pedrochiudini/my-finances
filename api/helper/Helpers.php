@@ -2,9 +2,13 @@
 
 require_once HOME . 'api/model/CustomFilter.php';
 
-function dd(mixed ...$data): void
+function dd(...$data): void
 {
     header('Content-Type: text/html; charset=utf-8');
+
+    if (!in_array(\PHP_SAPI, ['cli', 'phpdbg'], true) && !headers_sent()) {
+        header('HTTP/1.1 500 Internal Server Error');
+    }
 
     echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
         body {
@@ -39,26 +43,7 @@ function dd(mixed ...$data): void
 function highlightDump($value): string
 {
     ob_start();
-    print_r($value);
-    $output = ob_get_clean();
-
-    // Realce básico por tipo usando regex
-    $output = htmlspecialchars($output, ENT_QUOTES, 'UTF-8');
-
-    // Tipos primitivos
-    $output = preg_replace('/string\((\d+)\) "(.*?)"/', '<span class="type-string">string($1) "$2"</span>', $output);
-    $output = preg_replace('/int\((\d+)\)/', '<span class="type-int">int($1)</span>', $output);
-    $output = preg_replace('/float\((.*?)\)/', '<span class="type-float">float($1)</span>', $output);
-    $output = preg_replace('/bool\((true|false)\)/', '<span class="type-bool">bool($1)</span>', $output);
-    $output = preg_replace('/NULL/', '<span class="type-null">NULL</span>', $output);
-    $output = preg_replace('/array\((\d+)\)/', '<span class="type-array">array($1)</span>', $output);
-    $output = preg_replace('/object\((.*?)\)#(\d+)/', '<span class="type-object">object($1)#$2</span>', $output);
-
-    // Chaves
-    $output = preg_replace('/\[\"(.*?)\"\]=>/', '<span class="key">["$1"]</span> =>', $output);
-    $output = preg_replace('/\[(\d+)\]=>/', '<span class="key">[$1]</span> =>', $output);
-
-    return $output;
+    return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
 function ffilter(

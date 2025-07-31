@@ -7,8 +7,6 @@ class QueryBuilder
     public const INSERT = 2;
     public const DELETE = 3;
 
-    private PDO $connection;
-
     private const SQL_PARTS_DEFAULTS = [
         'select' => [],
         'table'  => null,
@@ -26,6 +24,10 @@ class QueryBuilder
 
     public function getSQL(): string
     {
+        if (!empty($this->sql)) {
+            return $this->sql;
+        }
+
         switch ($this->type) {
             case self::UPDATE:
                 $sql = $this->buildUpdate();
@@ -120,9 +122,23 @@ class QueryBuilder
         return $this;
     }
 
+    public function setParameters(array $params): self
+    {
+        $this->params = $params;
+
+        return $this;
+    }
+
     public function setValue(string $column, $value): self
     {
         $this->sql_parts['values'][$column] = $value;
+
+        return $this;
+    }
+
+    public function setValues(array $columns): self
+    {
+        $this->sql_parts['values'] = $columns;
 
         return $this;
     }
@@ -169,6 +185,12 @@ class QueryBuilder
         return $query;
     }
 
+    /**
+     * Build the final SQL query and return it along with parameters if any.
+     *
+     * @return array an array ['sql' => string, 'params' => array]
+     * @throws \Exception
+     */
     public function build(): array
     {
         if (empty($this->sql_parts['table'])) {

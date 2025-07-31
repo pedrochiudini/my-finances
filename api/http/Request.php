@@ -10,6 +10,26 @@ class Request
         return $_SERVER["REQUEST_METHOD"];
     }
 
+    public static function getCodeFromMethod(): int
+    {
+        switch (self::getMethod()) {
+            case Route::METHOD_GET:
+                return 200;
+
+            case Route::METHOD_POST:
+                return 201;
+
+            case Route::METHOD_PUT:
+                return 200;
+
+            case Route::METHOD_DELETE:
+                return 204;
+
+            default:
+                throw new \Exception("Método inválido", 405);
+        };
+    }
+
     /**
      * Lê o corpo da requisição e instancia o DTO informado
      *

@@ -9,5 +9,11 @@ interface IRequestDTO
      */
     public function transformToObject(): object;
 
+    /**
+     * Creates an instance of the DTO from an array.
+     *
+     * @param array $data
+     * @return self
+     */
     public static function fromArray(array $data): self;
 }
