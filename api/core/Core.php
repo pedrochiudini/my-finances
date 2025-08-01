@@ -57,7 +57,7 @@ class Core
 
             $controller_instance = ControllerFactory::create($controller);
 
-            $result = $controller_instance->$action(new Request, $matches);
+            $result = $controller_instance->$action(new Request, $matches[1]);
 
             Response::json($result, Request::getCodeFromMethod());
         } catch (\Throwable $th) {

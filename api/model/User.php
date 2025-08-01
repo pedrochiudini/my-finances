@@ -6,7 +6,7 @@ require_once HOME . 'api/interfaces/ModelInterface.php';
 class User extends Model implements ModelInterface
 {
     public static string $name_table = 'users';
-    public static array $fields_db = [
+    public static array $fields_db   = [
         'user_id',
         'name',
         'email',

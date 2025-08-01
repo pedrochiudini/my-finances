@@ -12,8 +12,9 @@ class UserController
     {
         $path = self::class;
 
-        Route::get("/api/users", "$path::getUsers");
-        Route::post("/api/users/create", "$path::create");
+        Route::post("/api/users/create", "$path::createUser");
+        Route::get("/api/users", "$path::getAllUsers");
+        Route::get("/api/users/{id}", "$path::getUserById");
     }
 
     private RepositoryInterface $repository;
@@ -23,10 +24,11 @@ class UserController
         $this->repository = $repository;
     }
 
-    public function getUserById(Request $request)
+    public function getUserById(Request $request, $user_id)
     {
         try {
-            $dto  = $request::body(UserRequestDTO::class);
+            $dto = UserRequestDTO::fromArray(["user_id" => $user_id]);
+
             $user = $dto->transformToObject();
 
             $user->validateUserId();
@@ -34,20 +36,37 @@ class UserController
             $user = $this->repository->findById($user->getId());
 
             if (!$user) {
-                return [
-                    'success' => false,
-                    'message' => 'Usuário não encontrado.'
-                ];
+                throw new \Exception('Erro ao buscar usuário.', 7401);
             }
 
-            return UserResponseDTO::transformTo DTO($user);
+            return UserResponseDTO::transformToDTO($user);
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao buscar usuário', 7401, $th);
+            throw new \Exception('Erro ao buscar usuário.', 7401, $th);
         }
     }
 
-    public function create(Request $request)
+    public function getAllUsers()
+    {
+        try {
+            $users = $this->repository->findAll();
+
+            if (empty($users)) {
+                throw new \Exception('Nenhum usuário encontrado.', 7401);
+            }
+
+            $func_map_users = (function ($user) {
+                return UserResponseDTO::transformToDTO($user);
+            });
+
+            return array_map($func_map_users, $users);
+        } catch (\Throwable $th) {
+            Functions::isCustomThrow($th);
+            throw new \Exception('Erro ao buscar usuários.', 7401, $th);
+        }
+    }
+
+    public function createUser(Request $request)
     {
         try {
             $dto  = $request::body(UserRequestDTO::class);
@@ -55,23 +74,17 @@ class UserController
 
             $user->validateData();
 
-            if ($this->repository->save($user)) {
-                return [
-                    'success' => true,
-                    'message' => 'Usuário criado com sucesso.',
-                ];
+            if (!$this->repository->save($user)) {
+                throw new \Exception('Erro ao criar usuário.', 7402);
             }
+
+            return [
+                'success' => true,
+                'message' => 'Usuário criado com sucesso.',
+            ];
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao criar usuário', 7400, $th);
+            throw new \Exception('Erro ao criar usuário.', 7402, $th);
         }
-    }
-
-    public function getUsers()
-    {
-        return [
-            UserResponseDTO::transformToDTO(new User(1, 'John Doe', 'john@example.com', 'password123')),
-            UserResponseDTO::transformToDTO(new User(2, 'Jane Smith', 'jane@example.com', 'password456'))
-        ];
     }
 }

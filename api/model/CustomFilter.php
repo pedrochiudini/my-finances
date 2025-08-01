@@ -24,7 +24,7 @@ class CustomFilter
         $this->default = $default;
     }
 
-    public function required(): static
+    public function required()//: static
     {
         if (!array_key_exists($this->input, $this->data) || $this->data[$this->input] === '') {
             throw new \Exception($this->msg ?? "Field ({$this->input}) is required!", 4600);

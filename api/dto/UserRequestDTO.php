@@ -9,7 +9,7 @@ class UserRequestDTO implements IRequestDTO
         private string $user_id,
         private string $name,
         private string $email,
-        private string $password,
+        private string $password
     ) {}
 
     public static function fromArray(array $data): self
@@ -18,7 +18,7 @@ class UserRequestDTO implements IRequestDTO
             user_id: $data['user_id'] ?? '',
             name: $data['name'] ?? '',
             email: $data['email'] ?? '',
-            password: $data['password'] ?? '',
+            password: $data['password'] ?? ''
         );
     }
 

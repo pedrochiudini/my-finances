@@ -23,29 +23,70 @@ class UserRepository implements RepositoryInterface
         try {
             $qb = new QueryBuilder();
 
-            $qb->select(User::$name_table)
+            $qb->select(User::$fields_db)
+                ->from(User::$name_table)
                 ->where('user_id', '=', ':id')
-                ->setParameters([':id' => $user_id]);
+                ->setParameter(':id', $user_id);
 
             $query  = $qb->build();
             $params = $query['params'] ?? [];
 
             $stmt = $this->connection->prepare($query['sql']);
-            $stmt->bindValue(':id', $params[':id']);
-            $stmt->execute();
+            $stmt->execute($params);
 
-            if ($stmt->rowCount() <= 0) {
-                throw new \Exception("Usuário não encontrado.", 7403);
+            $data = $stmt->fetch();
+
+            if (!$data) {
+                throw new \Exception("Usuário não encontrado.", 7402);
             }
 
-            return $stmt->fetchObject(User::class);
+            return new User(
+                $data['user_id'],
+                $data['name'],
+                $data['email'],
+                $data['password']
+            );
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao buscar usuário por ID.", 7402, $th);
+            throw new \Exception("Erro ao buscar usuário por ID. $th", 7402, $th);
         }
     }
 
-    public function findAll() {}
+    public function findAll()
+    {
+        try {
+            $qb = new QueryBuilder();
+
+            $qb->select(User::$fields_db)
+                ->from(User::$name_table);
+
+            $query  = $qb->build();
+            $params = $query['params'] ?? [];
+
+            $stmt = $this->connection->prepare($query['sql']);
+            $stmt->execute($params);
+
+            $data = $stmt->fetchAll();
+
+            if (empty($data)) {
+                return [];
+            }
+
+            $func_map_users = (function ($user) {
+                return new User(
+                    $user['user_id'],
+                    $user['name'],
+                    $user['email'],
+                    $user['password']
+                );
+            });
+
+            return array_map($func_map_users, $data);
+        } catch (\Throwable $th) {
+            Functions::isCustomThrow($th);
+            throw new \Exception("Erro ao buscar todos os usuários.", 7402, $th);
+        }
+    }
 
     public function save(object $user)
     {
@@ -77,7 +118,7 @@ class UserRepository implements RepositoryInterface
             return $stmt->rowCount() > 0;
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao salvar usuário.", 7404, $th);
+            throw new \Exception("Erro ao salvar usuário.", 7403, $th);
         }
     }
 

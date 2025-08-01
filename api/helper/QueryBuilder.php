@@ -110,7 +110,7 @@ class QueryBuilder
             $this->sql_parts['where'] = '';
         }
 
-        $this->sql_parts['where'] .= "{$column} {$operator} :{$column}";
+        $this->sql_parts['where'] .= "{$column} {$operator} {$param}";
 
         return $this;
     }
