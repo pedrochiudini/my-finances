@@ -44,7 +44,7 @@ class MonthlyIncome extends Model implements ModelInterface
             }
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao validar dados do usuário', 7400, $th);
+            throw new \Exception('Erro ao validar dados do usuário.', 7400, $th);
         }
     }
 
@@ -56,7 +56,7 @@ class MonthlyIncome extends Model implements ModelInterface
             $this->monthly_income_id = (ffilter($data, 'monthly_income_id'))->required()->string();
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao validar ID do usuário', 7401, $th);
+            throw new \Exception('Erro ao validar ID do rendimento mensal.', 7401, $th);
         }
     }
 
