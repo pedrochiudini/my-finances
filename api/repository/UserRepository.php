@@ -124,5 +124,5 @@ class UserRepository implements RepositoryInterface
 
     public function update(object $user) {}
 
-    public function delete(int $id) {}
+    public function delete(string $user_id) {}
 }

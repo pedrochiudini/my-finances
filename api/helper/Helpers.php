@@ -66,3 +66,13 @@ function sanitizeString(string $text): string
     $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
     return preg_replace('/[^A-Za-z0-9 ]/', '', $text);
 }
+
+function getAmountInFloat(int $amount): float
+{
+    return (float) round($amount / 100);
+}
+
+function getAmountInInteger(float $amount): int
+{
+    return (int) round($amount * 100);
+}

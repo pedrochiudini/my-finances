@@ -28,5 +28,5 @@ interface RepositoryInterface
 
     public function update(object $entity);
 
-    public function delete(int $id);
+    public function delete(string $id);
 }
