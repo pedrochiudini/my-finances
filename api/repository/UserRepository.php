@@ -18,7 +18,32 @@ class UserRepository implements RepositoryInterface
         $this->connection = $connection;
     }
 
-    public function findById(int $id) {}
+    public function findById(string $user_id)
+    {
+        try {
+            $qb = new QueryBuilder();
+
+            $qb->select(User::$name_table)
+                ->where('user_id', '=', ':id')
+                ->setParameters([':id' => $user_id]);
+
+            $query  = $qb->build();
+            $params = $query['params'] ?? [];
+
+            $stmt = $this->connection->prepare($query['sql']);
+            $stmt->bindValue(':id', $params[':id']);
+            $stmt->execute();
+
+            if ($stmt->rowCount() <= 0) {
+                throw new \Exception("Usuário não encontrado.", 7403);
+            }
+
+            return $stmt->fetchObject(User::class);
+        } catch (\Throwable $th) {
+            Functions::isCustomThrow($th);
+            throw new \Exception("Erro ao buscar usuário por ID.", 7402, $th);
+        }
+    }
 
     public function findAll() {}
 
@@ -30,7 +55,7 @@ class UserRepository implements RepositoryInterface
             $qb->insert(User::$name_table)
 
                 ->setValues([
-                    'id'       => ':id',
+                    'user_id'  => ':id',
                     'name'     => ':name',
                     'email'    => ':email',
                     'password' => ':password',
@@ -46,18 +71,13 @@ class UserRepository implements RepositoryInterface
             $query  = $qb->build();
             $params = $query['params'] ?? [];
 
-            dd($query);
-
             $stmt = $this->connection->prepare($query['sql']);
-            $stmt->bindValue(':id', $params[':id']);
-            $stmt->bindValue(':name', $params[':name']);
-            $stmt->bindValue(':email', $params[':email']);
-            $stmt->bindValue(':password', $params[':password']);
+            $stmt->execute($params);
 
-            return $stmt->execute();;
+            return $stmt->rowCount() > 0;
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao salvar usuário', 7400, $th);
+            throw new \Exception("Erro ao salvar usuário.", 7404, $th);
         }
     }
 

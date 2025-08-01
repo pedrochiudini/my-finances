@@ -6,7 +6,7 @@ require_once HOME . 'api/interfaces/IRequestDTO.php';
 class UserRequestDTO implements IRequestDTO
 {
     public function __construct(
-        private int $id,
+        private string $user_id,
         private string $name,
         private string $email,
         private string $password,
@@ -15,17 +15,17 @@ class UserRequestDTO implements IRequestDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            id: $data['id'],
-            name: $data['name'],
-            email: $data['email'],
-            password: $data['password'],
+            user_id: $data['user_id'] ?? '',
+            name: $data['name'] ?? '',
+            email: $data['email'] ?? '',
+            password: $data['password'] ?? '',
         );
     }
 
     public function transformToObject(): User
     {
         return new User(
-            id: $this->id,
+            user_id: $this->user_id,
             name: $this->name,
             email: $this->email,
             password: $this->password

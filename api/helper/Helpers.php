@@ -59,3 +59,10 @@ function ffilter(
         $msg
     ));
 }
+
+function sanitizeString(string $text): string
+{
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
+    return preg_replace('/[^A-Za-z0-9 ]/', '', $text);
+}

@@ -13,7 +13,7 @@ class UserController
         $path = self::class;
 
         Route::get("/api/users", "$path::getUsers");
-        Route::post("/api/users/create", "$path::createUser");
+        Route::post("/api/users/create", "$path::create");
     }
 
     private RepositoryInterface $repository;
@@ -23,7 +23,31 @@ class UserController
         $this->repository = $repository;
     }
 
-    public function createUser(Request $request)
+    public function getUserById(Request $request)
+    {
+        try {
+            $dto  = $request::body(UserRequestDTO::class);
+            $user = $dto->transformToObject();
+
+            $user->validateUserId();
+
+            $user = $this->repository->findById($user->getId());
+
+            if (!$user) {
+                return [
+                    'success' => false,
+                    'message' => 'Usuário não encontrado.'
+                ];
+            }
+
+            return UserResponseDTO::transformTo DTO($user);
+        } catch (\Throwable $th) {
+            Functions::isCustomThrow($th);
+            throw new \Exception('Erro ao buscar usuário', 7401, $th);
+        }
+    }
+
+    public function create(Request $request)
     {
         try {
             $dto  = $request::body(UserRequestDTO::class);
