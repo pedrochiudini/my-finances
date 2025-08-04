@@ -19,6 +19,14 @@ class ControllerFactory
                     require_once HOME . 'api/repository/MonthlyIncomeRepository.php';
                     return new MonthlyIncomeController(new MonthlyIncomeRepository(Database::getConnection()));
 
+                case 'ExpenseController':
+                    require_once HOME . 'api/controller/ExpenseController.php';
+                    require_once HOME . 'api/repository/ExpenseRepository.php';
+                    return new ExpenseController(
+                        new ExpenseRepository(Database::getConnection()),
+                        new MonthlyIncomeRepository(Database::getConnection())
+                    );
+
                 case 'NotFoundController':
                     require_once HOME . 'api/controller/NotFoundController.php';
                     return new NotFoundController();

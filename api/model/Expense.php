@@ -18,25 +18,25 @@ class Expense extends Model implements ModelInterface
     public static string $name_table = 'expenses';
     public static array $fields_db   = [
         'expense_id',
-        'monthly_income_id', // foreign key
+        'user_id', // foreign key
         'amount', // no banco é salvo como decimal (float)
         'category', // no banco é salvo como enum (['fixo', 'desejo', 'poupanca'])
-        'date', // no banco é salvo como date ('Y-m-d')
+        'reference_month', // no banco é salvo como date ('Y-m-d')
     ];
 
     protected string $expense_id;
-    protected string $monthly_income_id;
+    protected string $user_id;
     protected float $amount;
     protected string $category;
-    protected string $date;
+    protected string $reference_month;
 
-    public function __construct(string $expense_id, string $monthly_income_id, float $amount, string $category, string $date)
+    public function __construct(string $expense_id, string $user_id, float $amount, string $category, string $reference_month)
     {
         $this->expense_id = $expense_id;
-        $this->monthly_income_id = $monthly_income_id;
+        $this->user_id = $user_id;
         $this->amount = $amount;
         $this->category = $category;
-        $this->date = $date;
+        $this->reference_month = $reference_month;
     }
 
     public function validateData()
@@ -44,10 +44,10 @@ class Expense extends Model implements ModelInterface
         try {
             $data = $this->getData();
 
-            $this->monthly_income_id = (ffilter($data, 'monthly_income_id'))->required()->string();
-            $this->amount            = (ffilter($data, 'amount'))->required()->float();
-            $this->category          = (ffilter($data, 'category'))->required()->string();
-            $this->date              = (ffilter($data, 'date'))->required()->date();
+            $this->user_id         = (ffilter($data, 'user_id'))->required()->string();
+            $this->amount          = (ffilter($data, 'amount'))->required()->float();
+            $this->category        = (ffilter($data, 'category'))->required()->string();
+            $this->reference_month = (ffilter($data, 'reference_month'))->required()->date();
 
             if ($this->amount <= 0) {
                 throw new \Exception('O valor da despesa deve ser maior que zero.', 7400);
@@ -55,6 +55,10 @@ class Expense extends Model implements ModelInterface
 
             if (!in_array($this->category, self::$categories)) {
                 throw new \Exception('Categoria inválida. Deve ser "fixo", "desejo" ou "poupanca".', 7400);
+            }
+
+            if (!$this->validateMonth()) {
+                throw new \Exception('O mês de referência deve ser o mês atual.', 7400);
             }
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
@@ -79,9 +83,9 @@ class Expense extends Model implements ModelInterface
         return $this->expense_id;
     }
 
-    public function getMonthlyIncomeId(): string
+    public function getUserId(): string
     {
-        return $this->monthly_income_id;
+        return $this->user_id;
     }
 
     public function getAmount(): float
@@ -94,8 +98,19 @@ class Expense extends Model implements ModelInterface
         return $this->category;
     }
 
-    public function getDate(): string
+    public function getReferenceMonth(): string
     {
-        return $this->date;
+        return $this->reference_month;
+    }
+
+    private function validateMonth(): bool
+    {
+        $date = new DateTime($this->reference_month);
+        $now  = new DateTime();
+
+        $year_month_date = $date->format('Y-m');
+        $year_month_now  = $now->format('Y-m');
+
+        return $year_month_date === $year_month_now;
     }
 }

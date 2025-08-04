@@ -37,7 +37,7 @@ class UserRepository implements RepositoryInterface
             $data = $stmt->fetch();
 
             if (!$data) {
-                throw new \Exception("Usuário não encontrado.", 7402);
+                throw new \Exception("Usuário não encontrado.", 7401);
             }
 
             return new User(
@@ -48,7 +48,7 @@ class UserRepository implements RepositoryInterface
             );
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao buscar usuário por ID. $th", 7402, $th);
+            throw new \Exception("Erro ao buscar usuário por ID.", 7401, $th);
         }
     }
 

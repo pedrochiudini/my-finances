@@ -1,13 +1,13 @@
 <?php
 
 require_once HOME . 'api/interfaces/RepositoryInterface.php';
-require_once HOME . 'api/model/MonthlyIncome.php';
+require_once HOME . 'api/model/Expense.php';
 require_once HOME . 'api/helper/QueryBuilder.php';
 require_once HOME . 'api/helper/Functions.php';
 require_once HOME . 'api/traits/Common.php';
 require_once HOME . 'api/helper/Helpers.php';
 
-class MonthlyIncomeRepository implements RepositoryInterface
+class ExpenseRepository implements RepositoryInterface
 {
     use Common;
 
@@ -25,15 +25,15 @@ class MonthlyIncomeRepository implements RepositoryInterface
         self::$user_id = $user_id;
     }
 
-    public function findById(string $monthly_income_id)
+    public function findById(string $expense_id)
     {
         try {
             $qb = new QueryBuilder();
 
-            $qb->select(MonthlyIncome::$fields_db)
-                ->from(MonthlyIncome::$name_table)
-                ->where('monthly_income_id', '=', ':id')
-                ->setParameter(':id', $monthly_income_id);
+            $qb->select(Expense::$fields_db)
+                ->from(Expense::$name_table)
+                ->where('expense_id', '=', ':id')
+                ->setParameter(':id', $expense_id);
 
             $query  = $qb->build();
             $params = $query['params'] ?? [];
@@ -44,18 +44,19 @@ class MonthlyIncomeRepository implements RepositoryInterface
             $data = $stmt->fetch();
 
             if (!$data) {
-                throw new \Exception("Rendimento mensal não encontrado.", 7401);
+                throw new \Exception("Despesa não encontrada.", 7401);
             }
 
-            return new MonthlyIncome(
-                $data['monthly_income_id'],
+            return new Expense(
+                $data['expense_id'],
                 $data['user_id'],
                 $data['amount'],
+                $data['category'],
                 $data['reference_month']
             );
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao buscar rendimento mensal por ID.", 7401, $th);
+            throw new \Exception("Erro ao buscar despesa por ID.", 7401, $th);
         }
     }
 
@@ -64,8 +65,8 @@ class MonthlyIncomeRepository implements RepositoryInterface
         try {
             $qb = new QueryBuilder();
 
-            $qb->select(MonthlyIncome::$fields_db)
-                ->from(MonthlyIncome::$name_table)
+            $qb->select(Expense::$fields_db)
+                ->from(Expense::$name_table)
                 ->where('user_id', '=', ':user_id')
                 ->setParameter(':user_id', $this->user_id);
 
@@ -81,41 +82,44 @@ class MonthlyIncomeRepository implements RepositoryInterface
                 return [];
             }
 
-            $func_map_monthly_incomes = (function ($monthly_income) {
-                return new MonthlyIncome(
-                    $monthly_income['monthly_income_id'],
-                    $monthly_income['user_id'],
-                    $monthly_income['amount'],
-                    $monthly_income['reference_month']
+            $func_map_expenses = (function ($expense) {
+                return new Expense(
+                    $expense['expense_id'],
+                    $expense['user_id'],
+                    $expense['amount'],
+                    $expense['category'],
+                    $expense['reference_month']
                 );
             });
 
-            return array_map($func_map_monthly_incomes, $data);
+            return array_map($func_map_expenses, $data);
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao buscar todos os rendimentos mensais.", 7402, $th);
+            throw new \Exception("Erro ao buscar todas as despesas.", 7402, $th);
         }
     }
 
-    public function save(object $monthly_income)
+    public function save(object $expense)
     {
         try {
             $qb = new QueryBuilder();
 
-            $qb->insert(MonthlyIncome::$name_table)
+            $qb->insert(Expense::$name_table)
 
                 ->setValues([
-                    'monthly_income_id' => ':id',
-                    'user_id'           => ':user_id',
-                    'amount'            => ':amount',
-                    'reference_month'   => ':reference_month',
+                    'expense_id'      => ':id',
+                    'user_id '        => ':user_id',
+                    'amount'          => ':amount',
+                    'category'        => ':category',
+                    'reference_month' => ':reference_month',
                 ])
 
                 ->setParameters([
                     ':id'              => $this->uuid(),
-                    ':user_id'         => $monthly_income->getUserId(),
-                    ':amount'          => $monthly_income->getAmount(),
-                    ':reference_month' => $monthly_income->getReferenceMonth(),
+                    ':user_id'         => $expense->getUserId(),
+                    ':amount'          => $expense->getAmount(),
+                    ':category'        => $expense->getCategory(),
+                    ':reference_month' => $expense->getReferenceMonth(),
                 ]);
 
             $query  = $qb->build();
@@ -127,26 +131,26 @@ class MonthlyIncomeRepository implements RepositoryInterface
             return $stmt->rowCount() > 0;
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao salvar rendimento mensal.", 7403, $th);
+            throw new \Exception("Erro ao salvar despesa.", 7403, $th);
         }
     }
 
-    public function update(object $monthly_income) {}
+    public function update(object $expense) {}
 
-    public function delete(string $monthly_income_id) {}
+    public function delete(string $expense_id) {}
 
-    public function getAllFromCurrent(string $current_month)
+    public function getAllFromCurrentMonth(string $current_month): array
     {
         try {
             $qb = new QueryBuilder();
 
-            $qb->select(MonthlyIncome::$fields_db)
-                ->from(MonthlyIncome::$name_table)
+            $qb->select(Expense::$fields_db)
+                ->from(Expense::$name_table)
                 ->where('user_id', '=', ':user_id')
-                ->where('reference_month', 'LIKE', ':current_month')
+                ->where('reference_month', 'LIKE', ':reference_month')
                 ->setParameters([
-                    ':user_id'       => $this->user_id,
-                    ':current_month' => $current_month . '%'
+                    ':user_id'         => $this->user_id,
+                    ':reference_month' => $current_month . '%',
                 ]);
 
             $query  = $qb->build();
@@ -161,19 +165,20 @@ class MonthlyIncomeRepository implements RepositoryInterface
                 return [];
             }
 
-            $func_map_monthly_incomes = (function ($monthly_income) {
-                return new MonthlyIncome(
-                    $monthly_income['monthly_income_id'],
-                    $monthly_income['user_id'],
-                    $monthly_income['amount'],
-                    $monthly_income['reference_month']
+            $func_map_expenses = (function ($expense) {
+                return new Expense(
+                    $expense['expense_id'],
+                    $expense['user_id'],
+                    $expense['amount'],
+                    $expense['category'],
+                    $expense['reference_month']
                 );
             });
 
-            return array_map($func_map_monthly_incomes, $data);
+            return array_map($func_map_expenses, $data);
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao buscar rendimentos mensais do mês atual.", 7404, $th);
+            throw new \Exception("Erro ao buscar despesas do mês atual.", 7404, $th);
         }
     }
 }

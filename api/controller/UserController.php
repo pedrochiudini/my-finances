@@ -27,8 +27,7 @@ class UserController
     public function getUserById(Request $request, $user_id)
     {
         try {
-            $dto = UserRequestDTO::fromArray(["user_id" => $user_id]);
-
+            $dto  = UserRequestDTO::fromArray(["user_id" => $user_id]);
             $user = $dto->transformToObject();
 
             $user->validateUserId();

@@ -72,7 +72,7 @@ function getAmountInFloat(int $amount): float
     return (float) round($amount / 100);
 }
 
-function getAmountInInteger(float $amount): int
+function getAmountInInteger(int|float $amount): int
 {
     return (int) round($amount * 100);
 }

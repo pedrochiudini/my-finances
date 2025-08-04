@@ -13,7 +13,7 @@ class MonthlyIncomeController
         $path = self::class;
 
         Route::post("/api/monthly-incomes/create", "$path::createMonthlyIncome");
-        Route::get("/api/monthly-incomes", "$path::getAllMonthlyIncomes");
+        Route::get("/api/monthly-incomes/all/{id}", "$path::getAllMonthlyIncomes");
         Route::get("/api/monthly-incomes/{id}", "$path::getMonthlyIncomeById");
     }
 
@@ -24,10 +24,10 @@ class MonthlyIncomeController
         $this->repository = $repository;
     }
 
-    public function getMonthlyIncomeById(Request $request, $monthly_income_id) {
+    public function getMonthlyIncomeById(Request $request, $monthly_income_id)
+    {
         try {
-            $dto = MonthlyIncomeRequestDTO::fromArray(["monthly_income_id" => $monthly_income_id]);
-
+            $dto            = MonthlyIncomeRequestDTO::fromArray(["monthly_income_id" => $monthly_income_id]);
             $monthly_income = $dto->transformToObject();
 
             $monthly_income->validateMonthlyIncomeId();
@@ -45,8 +45,16 @@ class MonthlyIncomeController
         }
     }
 
-    public function getAllMonthlyIncomes() {
+    public function getAllMonthlyIncomes(Request $request, $user_id)
+    {
         try {
+            $dto            = MonthlyIncomeRequestDTO::fromArray(["user_id" => $user_id]);
+            $monthly_income = $dto->transformToObject();
+
+            $monthly_income->validateData();
+
+            MonthlyIncomeRepository::setUserId($monthly_income->getUserId());
+
             $monthly_incomes = $this->repository->findAll();
 
             if (empty($monthly_incomes)) {
@@ -67,7 +75,7 @@ class MonthlyIncomeController
     public function createMonthlyIncome(Request $request)
     {
         try {
-            $dto  = $request::body(MonthlyIncomeRequestDTO::class);
+            $dto            = $request::body(MonthlyIncomeRequestDTO::class);
             $monthly_income = $dto->transformToObject();
 
             $monthly_income->validateData();
