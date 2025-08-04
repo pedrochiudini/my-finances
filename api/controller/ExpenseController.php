@@ -45,31 +45,48 @@ class ExpenseController
         }
     }
 
-    public function getAllExpenses(Request $request, $user_id)
+    public function getAllExpenses(Request $request)
     {
-        try {
-            $dto     = ExpenseRequestDTO::fromArray(["user_id" => $user_id]);
-            $expense = $dto->transformToObject();
+        $result = null;
+        protectedRoute(function ($payload) use (&$result) {
+            $user_id = $payload['user_id'] ?? null;
 
-            $expenses = $this->repository->findAll($expense->getUserId());
-
-            if (empty($expenses)) {
-                throw new \Exception('Nenhuma despesa encontrada.', 7401);
+            if (!$user_id) {
+                throw new \Exception('Usuário não autenticado.', 7401);
             }
 
-            $func_map_expenses = (function ($expense) {
-                return ExpenseResponseDTO::transformToDTO($expense);
-            });
+            try {
+                $dto     = ExpenseRequestDTO::fromArray(["user_id" => $user_id]);
+                $expense = $dto->transformToObject();
 
-            return array_map($func_map_expenses, $expenses);
-        } catch (\Throwable $th) {
-            Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao buscar despesas.' . $th, 7401, $th);
-        }
+                $expenses = $this->repository->findAll($expense->getUserId());
+
+                if (empty($expenses)) {
+                    throw new \Exception('Nenhuma despesa encontrada.', 7401);
+                }
+
+                $func_map_expenses = (function ($expense) {
+                    return ExpenseResponseDTO::transformToDTO($expense);
+                });
+
+                $result = array_map($func_map_expenses, $expenses);
+            } catch (\Throwable $th) {
+                Functions::isCustomThrow($th);
+                throw new \Exception('Erro ao buscar despesas.', 7401, $th);
+            }
+        });
+
+        return $result;
     }
 
     public function createExpense(Request $request)
     {
+        protectedRoute(function ($payload) {
+            if (!empty($payload['user_id'])) {
+                throw new \Exception('Usuário não autenticado.', 7401);
+            }
+        });
+
         try {
             $dto     = $request::body(ExpenseRequestDTO::class);
             $expense = $dto->transformToObject();

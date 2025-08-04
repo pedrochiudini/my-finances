@@ -42,6 +42,19 @@ class User extends Model implements ModelInterface
         }
     }
 
+    public function validateLoginData()
+    {
+        try {
+            $data = $this->getData();
+
+            $this->email    = (ffilter($data, 'email'))->required()->string();
+            $this->password = (ffilter($data, 'password'))->required()->string();
+        } catch (\Throwable $th) {
+            Functions::isCustomThrow($th);
+            throw new \Exception('Erro ao validar login do usuário', 7400, $th);
+        }
+    }
+
     public function validateUserId()
     {
         try {

@@ -1,5 +1,6 @@
 <?php
 define('NOT_FOUND_CONTROLLER', 'NotFoundController');
+define('SECRET_KEY', 'my-secret-key');
 
 define('DB_HOST', 'localhost');
 define('DB_PORT', '5432');

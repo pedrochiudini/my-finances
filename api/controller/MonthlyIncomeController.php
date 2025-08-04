@@ -13,7 +13,7 @@ class MonthlyIncomeController
         $path = self::class;
 
         Route::post("/api/monthly-incomes/create", "$path::createMonthlyIncome");
-        Route::get("/api/monthly-incomes/all/{id}", "$path::getAllMonthlyIncomes");
+        Route::get("/api/monthly-incomes/all", "$path::getAllMonthlyIncomes");
         Route::get("/api/monthly-incomes/{id}", "$path::getMonthlyIncomeById");
     }
 
@@ -45,31 +45,48 @@ class MonthlyIncomeController
         }
     }
 
-    public function getAllMonthlyIncomes(Request $request, $user_id)
+    public function getAllMonthlyIncomes(Request $request)
     {
-        try {
-            $dto            = MonthlyIncomeRequestDTO::fromArray(["user_id" => $user_id]);
-            $monthly_income = $dto->transformToObject();
+        $result = null;
+        protectedRoute(function ($payload) use (&$result) {
+            $user_id = $payload['user_id'] ?? null;
 
-            $monthly_incomes = $this->repository->findAll($monthly_income->getUserId());
-
-            if (empty($monthly_incomes)) {
-                throw new \Exception('Nenhum rendimento mensal encontrado.', 7401);
+            if (!$user_id) {
+                throw new \Exception('Usuário não autenticado.', 7401);
             }
 
-            $func_map_monthly_incomes = (function ($monthly_income) {
-                return MonthlyIncomeResponseDTO::transformToDTO($monthly_income);
-            });
+            try {
+                $dto            = MonthlyIncomeRequestDTO::fromArray(["user_id" => $user_id]);
+                $monthly_income = $dto->transformToObject();
 
-            return array_map($func_map_monthly_incomes, $monthly_incomes);
-        } catch (\Throwable $th) {
-            Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao buscar rendimentos mensais.', 7401, $th);
-        }
+                $monthly_incomes = $this->repository->findAll($monthly_income->getUserId());
+
+                if (empty($monthly_incomes)) {
+                    throw new \Exception('Nenhum rendimento mensal encontrado.', 7401);
+                }
+
+                $func_map_monthly_incomes = (function ($monthly_income) {
+                    return MonthlyIncomeResponseDTO::transformToDTO($monthly_income);
+                });
+
+                $result = array_map($func_map_monthly_incomes, $monthly_incomes);
+            } catch (\Throwable $th) {
+                Functions::isCustomThrow($th);
+                throw new \Exception('Erro ao buscar rendimentos mensais.', 7401, $th);
+            }
+        });
+
+        return $result;
     }
 
     public function createMonthlyIncome(Request $request)
     {
+        protectedRoute(function ($payload) {
+            if (!empty($payload['user_id'])) {
+                throw new \Exception('Usuário não autenticado.', 7401);
+            }
+        });
+
         try {
             $dto            = $request::body(MonthlyIncomeRequestDTO::class);
             $monthly_income = $dto->transformToObject();

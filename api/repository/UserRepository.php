@@ -7,7 +7,7 @@ require_once HOME . 'api/helper/Functions.php';
 require_once HOME . 'api/traits/Common.php';
 require_once HOME . 'api/helper/Helpers.php';
 
-class UserRepository implements RepositoryInterface
+class UserRepository implements UserRepositoryInterface
 {
     use Common;
 
@@ -16,6 +16,40 @@ class UserRepository implements RepositoryInterface
     public function __construct(PDO $connection)
     {
         $this->connection = $connection;
+    }
+
+    public function findByEmail(string $email)
+    {
+        try {
+            $qb = new QueryBuilder();
+
+            $qb->select(User::$fields_db)
+                ->from(User::$name_table)
+                ->where('email', '=', ':email')
+                ->setParameter(':email', $email);
+
+            $query  = $qb->build();
+            $params = $query['params'] ?? [];
+
+            $stmt = $this->connection->prepare($query['sql']);
+            $stmt->execute($params);
+
+            $data = $stmt->fetch();
+
+            if (!$data) {
+                throw new \Exception("Usuário não encontrado.", 7401);
+            }
+
+            return new User(
+                $data['user_id'],
+                $data['name'],
+                $data['email'],
+                $data['password']
+            );
+        } catch (\Throwable $th) {
+            Functions::isCustomThrow($th);
+            throw new \Exception("Erro ao buscar usuário por email.", 7401, $th);
+        }
     }
 
     public function findById(string $user_id)

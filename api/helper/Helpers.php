@@ -76,3 +76,27 @@ function getAmountInInteger(int|float $amount): int
 {
     return (int) floor($amount * 100);
 }
+
+function protectedRoute(callable $callback)
+{
+    $headers = getallheaders();
+
+    if (!isset($headers['Authorization'])) {
+        Response::json([
+            'success' => false,
+            'message' => 'Token de autenticação não fornecido.'
+        ], 401);
+    }
+
+    $token   = str_replace('Bearer ', '', $headers['Authorization']);
+    $payload = JWT::decode($token);
+
+    if (!$payload) {
+        Response::json([
+            'success' => false,
+            'message' => 'Token inválido ou expirado.'
+        ], 401);
+    }
+
+    $callback($payload);
+}
