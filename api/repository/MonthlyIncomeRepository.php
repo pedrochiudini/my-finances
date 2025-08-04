@@ -13,16 +13,9 @@ class MonthlyIncomeRepository implements RepositoryInterface
 
     private PDO $connection;
 
-    private string $user_id = '';
-
     public function __construct(PDO $connection)
     {
         $this->connection = $connection;
-    }
-
-    public static function setUserId(string $user_id): void
-    {
-        self::$user_id = $user_id;
     }
 
     public function findById(string $monthly_income_id)
@@ -59,15 +52,18 @@ class MonthlyIncomeRepository implements RepositoryInterface
         }
     }
 
-    public function findAll()
+    public function findAll(?string $user_id = null)
     {
         try {
             $qb = new QueryBuilder();
 
             $qb->select(MonthlyIncome::$fields_db)
-                ->from(MonthlyIncome::$name_table)
-                ->where('user_id', '=', ':user_id')
-                ->setParameter(':user_id', $this->user_id);
+                ->from(MonthlyIncome::$name_table);
+
+            if ($user_id) {
+                $qb->where('user_id', '=', ':user_id')
+                    ->setParameter(':user_id', $user_id);
+            }
 
             $query  = $qb->build();
             $params = $query['params'] ?? [];
@@ -135,7 +131,7 @@ class MonthlyIncomeRepository implements RepositoryInterface
 
     public function delete(string $monthly_income_id) {}
 
-    public function getAllFromCurrent(string $current_month)
+    public function getAllFromCurrentMonth(string $current_month, string $user_id)
     {
         try {
             $qb = new QueryBuilder();
@@ -143,10 +139,10 @@ class MonthlyIncomeRepository implements RepositoryInterface
             $qb->select(MonthlyIncome::$fields_db)
                 ->from(MonthlyIncome::$name_table)
                 ->where('user_id', '=', ':user_id')
-                ->where('reference_month', 'LIKE', ':current_month')
+                ->where("TO_CHAR(reference_month, 'YYYY-MM')", "=", ":reference_month")
                 ->setParameters([
-                    ':user_id'       => $this->user_id,
-                    ':current_month' => $current_month . '%'
+                    ':user_id'         => $user_id,
+                    ':reference_month' => $current_month
                 ]);
 
             $query  = $qb->build();

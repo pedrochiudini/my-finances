@@ -69,10 +69,10 @@ function sanitizeString(string $text): string
 
 function getAmountInFloat(int $amount): float
 {
-    return (float) round($amount / 100);
+    return (float) $amount / 100;
 }
 
 function getAmountInInteger(int|float $amount): int
 {
-    return (int) round($amount * 100);
+    return (int) floor($amount * 100);
 }

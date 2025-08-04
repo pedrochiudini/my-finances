@@ -54,7 +54,7 @@ class Expense extends Model implements ModelInterface
             }
 
             if (!in_array($this->category, self::$categories)) {
-                throw new \Exception('Categoria inválida. Deve ser "fixo", "desejo" ou "poupanca".', 7400);
+                throw new \Exception('Categoria inválida. Deve ser (fixo), (desejo) ou (poupanca).', 7400);
             }
 
             if (!$this->validateMonth()) {

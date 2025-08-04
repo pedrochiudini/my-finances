@@ -57,12 +57,13 @@ class Core
 
             $controller_instance = ControllerFactory::create($controller);
 
-            $result = $controller_instance->$action(new Request, $matches[1]);
+            $object_id = $matches[1] ?? null;
+            $result    = $controller_instance->$action(new Request, $object_id);
 
             Response::json($result, Request::getCodeFromMethod());
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao processar rota' . $th, 7400, $th);
+            throw new \Exception('Erro ao processar rota.', 7400, $th);
         }
     }
 

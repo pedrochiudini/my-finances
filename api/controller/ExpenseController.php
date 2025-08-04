@@ -51,11 +51,7 @@ class ExpenseController
             $dto     = ExpenseRequestDTO::fromArray(["user_id" => $user_id]);
             $expense = $dto->transformToObject();
 
-            $expense->validateData();
-
-            ExpenseRepository::setUserId($expense->getUserId());
-
-            $expenses = $this->repository->findAll();
+            $expenses = $this->repository->findAll($expense->getUserId());
 
             if (empty($expenses)) {
                 throw new \Exception('Nenhuma despesa encontrada.', 7401);
@@ -68,7 +64,7 @@ class ExpenseController
             return array_map($func_map_expenses, $expenses);
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception('Erro ao buscar despesas.', 7401, $th);
+            throw new \Exception('Erro ao buscar despesas.' . $th, 7401, $th);
         }
     }
 

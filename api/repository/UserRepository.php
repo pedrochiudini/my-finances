@@ -52,7 +52,7 @@ class UserRepository implements RepositoryInterface
         }
     }
 
-    public function findAll()
+    public function findAll(?string $user_id = null)
     {
         try {
             $qb = new QueryBuilder();

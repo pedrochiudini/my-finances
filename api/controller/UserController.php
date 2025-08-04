@@ -13,7 +13,7 @@ class UserController
         $path = self::class;
 
         Route::post("/api/users/create", "$path::createUser");
-        Route::get("/api/users", "$path::getAllUsers");
+        Route::get("/api/users/all", "$path::getAllUsers");
         Route::get("/api/users/{id}", "$path::getUserById");
     }
 

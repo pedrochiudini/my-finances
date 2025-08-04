@@ -13,16 +13,9 @@ class ExpenseRepository implements RepositoryInterface
 
     private PDO $connection;
 
-    private string $user_id = '';
-
     public function __construct(PDO $connection)
     {
         $this->connection = $connection;
-    }
-
-    public static function setUserId(string $user_id): void
-    {
-        self::$user_id = $user_id;
     }
 
     public function findById(string $expense_id)
@@ -60,15 +53,18 @@ class ExpenseRepository implements RepositoryInterface
         }
     }
 
-    public function findAll()
+    public function findAll(?string $user_id = null)
     {
         try {
             $qb = new QueryBuilder();
 
             $qb->select(Expense::$fields_db)
-                ->from(Expense::$name_table)
-                ->where('user_id', '=', ':user_id')
-                ->setParameter(':user_id', $this->user_id);
+                ->from(Expense::$name_table);
+
+            if ($user_id) {
+                $qb->where('user_id', '=', ':user_id')
+                    ->setParameter(':user_id', $user_id);
+            }
 
             $query  = $qb->build();
             $params = $query['params'] ?? [];
@@ -139,7 +135,7 @@ class ExpenseRepository implements RepositoryInterface
 
     public function delete(string $expense_id) {}
 
-    public function getAllFromCurrentMonth(string $current_month): array
+    public function getAllFromCurrentMonth(string $current_month, string $user_id)
     {
         try {
             $qb = new QueryBuilder();
@@ -147,10 +143,10 @@ class ExpenseRepository implements RepositoryInterface
             $qb->select(Expense::$fields_db)
                 ->from(Expense::$name_table)
                 ->where('user_id', '=', ':user_id')
-                ->where('reference_month', 'LIKE', ':reference_month')
+                ->where("TO_CHAR(reference_month, 'YYYY-MM')", "=", ":reference_month")
                 ->setParameters([
-                    ':user_id'         => $this->user_id,
-                    ':reference_month' => $current_month . '%',
+                    ':user_id'         => $user_id,
+                    ':reference_month' => $current_month,
                 ]);
 
             $query  = $qb->build();
@@ -178,7 +174,7 @@ class ExpenseRepository implements RepositoryInterface
             return array_map($func_map_expenses, $data);
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao buscar despesas do mês atual.", 7404, $th);
+            throw new \Exception("Erro ao buscar despesas do mês atual. $th", 7404, $th);
         }
     }
 }

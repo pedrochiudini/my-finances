@@ -51,11 +51,7 @@ class MonthlyIncomeController
             $dto            = MonthlyIncomeRequestDTO::fromArray(["user_id" => $user_id]);
             $monthly_income = $dto->transformToObject();
 
-            $monthly_income->validateData();
-
-            MonthlyIncomeRepository::setUserId($monthly_income->getUserId());
-
-            $monthly_incomes = $this->repository->findAll();
+            $monthly_incomes = $this->repository->findAll($monthly_income->getUserId());
 
             if (empty($monthly_incomes)) {
                 throw new \Exception('Nenhum rendimento mensal encontrado.', 7401);

@@ -16,7 +16,7 @@ interface RepositoryInterface
      * @return array Returns an array of entities.
      * @throws \Exception If an error occurs during the find operation.
      */
-    public function findAll();
+    public function findAll(?string $user_id = null);
 
     /**
      * Save an entity to the database.
