@@ -18,7 +18,7 @@ class Database
                     DatabaseConfig::options()
                 );
             } catch (\PDOException $e) {
-                throw new \Exception("Erro ao conectar ao banco de dados." . $e, 7500, $e);
+                throw new \Exception("Erro ao conectar ao banco de dados.", 7500, $e);
             }
         }
 
