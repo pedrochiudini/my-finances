@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-define('HOME', dirname(__DIR__) . DIRECTORY_SEPARATOR);
+define('HOME', __DIR__ . DIRECTORY_SEPARATOR);
 
 require_once HOME . 'api/routes/Main.php';
 require_once HOME . 'api/config/Config.php';
