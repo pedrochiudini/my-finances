@@ -33,7 +33,7 @@ class DatabaseConfig
         $db_port = self::port();
         $db_name = self::name();
 
-        $dsn = "pgsql:host=$db_host;port=$db_port;dbname=$db_name";
+        $dsn = "pgsql:host=dpg-d29tr2ur433s739sb2f0-a.oregon-postgres.render.com;port=5432;dbname=myfinances_dbrender;";
 
         return $dsn;
     }
