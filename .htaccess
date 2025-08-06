@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Se o arquivo ou diretório solicitado não existir
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redireciona as requisições que começam com /api para index.php
+RewriteRule ^api/.*$ index.php [QSA,L]
