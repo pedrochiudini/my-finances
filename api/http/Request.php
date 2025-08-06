@@ -2,6 +2,7 @@
 
 require_once HOME . 'api/http/Route.php';
 require_once HOME . 'api/interfaces/IRequestDTO.php';
+require_once HOME . 'api/http/Cors.php';
 
 class Request
 {
@@ -38,6 +39,15 @@ class Request
      */
     public static function body(string $dtoClass): IRequestDTO
     {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(204);
+            exit;
+        }
+
         if (!in_array(self::getMethod(), [
             Route::METHOD_POST,
             Route::METHOD_PUT,

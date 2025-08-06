@@ -1,5 +1,7 @@
 <?php
 
+require_once HOME . 'api/http/Cors.php';
+
 class Response
 {
     public static function json($data = [], int $status = 200): void

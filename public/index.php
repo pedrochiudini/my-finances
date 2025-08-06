@@ -11,6 +11,8 @@ require_once HOME . 'api/http/Route.php';
 
 require_once HOME . 'api/helper/Helpers.php';
 
+require_once HOME . 'api/http/Cors.php';
+
 try {
     Core::dispatch(Route::routes());
 } catch (\Throwable $th) {

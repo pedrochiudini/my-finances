@@ -2,6 +2,7 @@
 
 require_once HOME . 'api/http/Route.php';
 require_once HOME . 'api/helper/Helpers.php';
+require_once HOME . 'api/http/Cors.php';
 
 class DashboardController
 {

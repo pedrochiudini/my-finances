@@ -5,6 +5,7 @@ require_once HOME . 'api/dto/MonthlyIncomeResponseDTO.php';
 require_once HOME . 'api/dto/MonthlyIncomeRequestDTO.php';
 require_once HOME . 'api/http/Route.php';
 require_once HOME . 'api/helper/Helpers.php';
+require_once HOME . 'api/http/Cors.php';
 
 class MonthlyIncomeController
 {
@@ -82,7 +83,7 @@ class MonthlyIncomeController
     public function createMonthlyIncome(Request $request)
     {
         protectedRoute(function ($payload) {
-            if (!empty($payload['user_id'])) {
+            if (empty($payload['user_id'])) {
                 throw new \Exception('Usuário não autenticado.', 7401);
             }
         });

@@ -8,6 +8,7 @@ require_once HOME . 'api/helper/Helpers.php';
 require_once HOME . 'api/interfaces/UserRepositoryInterface.php';
 require_once HOME . 'api/traits/Common.php';
 require_once HOME . 'api/auth/JWT.php';
+require_once HOME . 'api/http/Cors.php';
 
 class UserController
 {
@@ -54,7 +55,7 @@ class UserController
     public function getAllUsers()
     {
         protectedRoute(function ($payload) {
-            if (!empty($payload['user_id'])) {
+            if (empty($payload['user_id'])) {
                 throw new \Exception('Usuário não autenticado.', 7401);
             }
         });

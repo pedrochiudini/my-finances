@@ -2,6 +2,7 @@
 
 require_once HOME . 'api/http/Response.php';
 require_once HOME . 'api/helper/QueryBuilder.php';
+require_once HOME . 'api/http/Cors.php';
 
 class NotFoundController
 {

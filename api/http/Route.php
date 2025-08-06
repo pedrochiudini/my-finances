@@ -1,5 +1,7 @@
 <?php
 
+require_once HOME . 'api/http/Cors.php';
+
 class Route
 {
     public const METHOD_GET    = 'GET';

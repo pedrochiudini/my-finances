@@ -5,6 +5,7 @@ require_once HOME . 'api/http/Response.php';
 require_once HOME . 'api/http/Request.php';
 require_once HOME . 'api/factory/ControllerFactory.php';
 require_once HOME . 'api/helper/Functions.php';
+require_once HOME . 'api/http/Cors.php';
 
 class Core
 {

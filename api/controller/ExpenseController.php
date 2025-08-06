@@ -5,6 +5,7 @@ require_once HOME . 'api/dto/ExpenseResponseDTO.php';
 require_once HOME . 'api/dto/ExpenseRequestDTO.php';
 require_once HOME . 'api/http/Route.php';
 require_once HOME . 'api/helper/Helpers.php';
+require_once HOME . 'api/http/Cors.php';
 
 class ExpenseController
 {
@@ -82,7 +83,7 @@ class ExpenseController
     public function createExpense(Request $request)
     {
         protectedRoute(function ($payload) {
-            if (!empty($payload['user_id'])) {
+            if (empty($payload['user_id'])) {
                 throw new \Exception('Usuário não autenticado.', 7401);
             }
         });
