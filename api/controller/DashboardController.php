@@ -87,6 +87,14 @@ class DashboardController
                     return $carry;
                 }, []);
 
+                foreach (Expense::$categories as $category) {
+                    $expenses_by_category[$category] ??= 0;
+                }
+
+                foreach ($ideal_expenses as $key => $value) {
+                    $percent_expenses[$key] = (int) (($expenses_by_category[$key] * 100) / $value);
+                }
+
                 $ideal_expenses       = array_map('getAmountInFloat', $ideal_expenses);
                 $expenses_by_category = array_map('getAmountInFloat', $expenses_by_category);
 
@@ -101,6 +109,7 @@ class DashboardController
                     'monthly_incomes'       => $monthly_incomes,
                     'ideal_expenses'        => $ideal_expenses,
                     'expenses_by_category'  => $expenses_by_category,
+                    'percent_expenses'      => $percent_expenses,
                 ];
             } catch (\Throwable $th) {
                 Functions::isCustomThrow($th);

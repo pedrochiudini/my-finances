@@ -13,7 +13,7 @@ class ExpenseController
         $path = self::class;
 
         Route::post("/api/expenses/create", "$path::createExpense");
-        Route::get("/api/expenses/all/{id}", "$path::getAllExpenses");
+        Route::get("/api/expenses/all", "$path::getAllExpenses");
         Route::get("/api/expenses/{id}", "$path::getExpenseById");
     }
 
