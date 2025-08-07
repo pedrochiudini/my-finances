@@ -127,7 +127,7 @@ class ExpenseRepository implements RepositoryInterface
             return $stmt->rowCount() > 0;
         } catch (\Throwable $th) {
             Functions::isCustomThrow($th);
-            throw new \Exception("Erro ao salvar despesa.", 7403, $th);
+            throw new \Exception("Erro ao salvar despesa." . $th, 7403, $th);
         }
     }
 
