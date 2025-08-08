@@ -96,6 +96,12 @@ class DashboardController
                     $percent_expenses[$key] = (int) (($expenses_by_category[$key] * 100) / $value);
                 }
 
+                $array_expenses = array_slice($expenses, -3);
+
+                foreach ($array_expenses as $expense) {
+                    $latest_expenses[] = ExpenseResponseDTO::transformToDTO($expense);
+                }
+
                 $ideal_expenses       = array_map('getAmountInFloat', $ideal_expenses);
                 $expenses_by_category = array_map('getAmountInFloat', $expenses_by_category);
 
@@ -111,10 +117,11 @@ class DashboardController
                     'ideal_expenses'        => $ideal_expenses,
                     'expenses_by_category'  => $expenses_by_category,
                     'percent_expenses'      => $percent_expenses,
+                    'latest_expenses'       => $latest_expenses,
                 ];
             } catch (\Throwable $th) {
                 Functions::isCustomThrow($th);
-                throw new \Exception('Erro ao buscar dados do dashboard.' . $th, 7401, $th);
+                throw new \Exception('Erro ao buscar dados do dashboard.', 7401, $th);
             }
         });
 
