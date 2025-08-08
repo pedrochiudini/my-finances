@@ -96,7 +96,7 @@ class DashboardController
                     $percent_expenses[$key] = (int) (($expenses_by_category[$key] * 100) / $value);
                 }
 
-                $array_expenses = array_slice($expenses, -3);
+                $array_expenses = array_slice(array_reverse($expenses), 0, 3);
 
                 foreach ($array_expenses as $expense) {
                     $latest_expenses[] = ExpenseResponseDTO::transformToDTO($expense);
